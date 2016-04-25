@@ -1,17 +1,18 @@
-import model.Email;
-import model.Message;
+import onetomany.Email;
+import onetomany.Message;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Properties;
 
 /**
  * Created by pthanhtrung on 4/20/2016.
  */
-public class SimpleHibernate {
+public class SimpleHibernateOneToMany {
     public static SessionFactory factory;
 
     @BeforeClass
@@ -60,7 +61,7 @@ public class SimpleHibernate {
         Email email = new Email("Broken");
         Message message = new Message("Broken Msg");
 
-        email.setMessage(message);
+        email.setMessages(Arrays.asList(message));
 //        message.setEmail(email);
         session.save(email);
         session.save(message);
@@ -69,7 +70,7 @@ public class SimpleHibernate {
         tx.commit();
         session.close();
 
-        org.junit.Assert.assertNotNull(email.getMessage());
+        org.junit.Assert.assertNotNull(email.getMessages().get(0));
         org.junit.Assert.assertNull(message.getEmail());
 
         session = factory.openSession();
@@ -100,7 +101,7 @@ public class SimpleHibernate {
         tx.commit();
         session.close();
 
-        org.junit.Assert.assertNotNull(email.getMessage());
+        org.junit.Assert.assertNotNull(email.getMessages());
         org.junit.Assert.assertNull(message.getEmail());
     }
 

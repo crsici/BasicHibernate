@@ -1,17 +1,17 @@
-import model.Email;
-import model.Message;
+import equality.Email;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Properties;
 
 /**
  * Created by pthanhtrung on 4/20/2016.
  */
-public class SimpleHibernate {
+public class SimpleHibernateEquality {
     public static SessionFactory factory;
 
     @BeforeClass
@@ -27,10 +27,10 @@ public class SimpleHibernate {
 
         Configuration configuration = new Configuration();
         configuration.addProperties(getHibernateProperties());
-        configuration.addAnnotatedClass(Message.class);
         configuration.addAnnotatedClass(Email.class);
-        System.out.println("Init ------------------------ ");
+
         factory = configuration.buildSessionFactory();
+        System.out.println("Finish init ----------------------");
 
 
     }
@@ -58,50 +58,28 @@ public class SimpleHibernate {
         Session session = factory.openSession();
         Transaction tx = session.beginTransaction();
         Email email = new Email("Broken");
-        Message message = new Message("Broken Msg");
 
-        email.setMessage(message);
 //        message.setEmail(email);
         session.save(email);
-        session.save(message);
+
         emailId = email.getId();
-        messageId = message.getId();
+
         tx.commit();
         session.close();
+        email.setSubject("new");
 
-        org.junit.Assert.assertNotNull(email.getMessage());
-        org.junit.Assert.assertNull(message.getEmail());
+        org.junit.Assert.assertNotNull(email.getId());
 
         session = factory.openSession();
-
-
         tx = session.beginTransaction();
         email = (Email) session.get(Email.class, emailId);
-        System.out.println(email);
-        message = session.get(Message.class, messageId);
-        System.out.println(message);
 
-
-        System.out.println("Raw values ------------- ");
-        Query query = session.createSQLQuery("select\n" +
-                "       * " +
-                "    from\n" +
-                "        Email  ");
-        query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-        System.out.println(query.list());
-
-        query = session.createSQLQuery("select\n" +
-                "       * " +
-                "    from\n" +
-                "        Message  ");
-        query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-        System.out.println(query.list());
+        System.out.println(email.getId());
 
         tx.commit();
         session.close();
 
-        org.junit.Assert.assertNotNull(email.getMessage());
-        org.junit.Assert.assertNull(message.getEmail());
+
     }
 
 
